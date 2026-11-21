@@ -1,0 +1,12 @@
+# Dados baixados pelo baixar_dados.py (não versionar)
+datasets/
+# Artigos com direitos autorais
+papers/
+# Ambiente e caches
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+.superpowers/
+*.part
+*:Zone.Identifier
