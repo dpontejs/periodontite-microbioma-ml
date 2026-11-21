@@ -23,6 +23,19 @@ dados demográficos e de saúde. A condição periodontal segue os critérios de
 
 ---
 
+## Sumário
+
+- [O que tem nesta pasta](#o-que-tem-nesta-pasta)
+- [Jeito 1: rodar no Google Colab](#jeito-1-rodar-no-google-colab-sem-instalar-nada)
+- [Jeito 2: rodar no seu computador](#jeito-2-rodar-no-seu-computador)
+- [A demonstração (app)](#a-demonstração-app)
+- [Trabalhando com o git](#trabalhando-com-o-git)
+- [Adicionar uma biblioteca](#adicionar-uma-biblioteca)
+- [Problemas comuns](#problemas-comuns)
+- [Como conferir que tudo funciona](#como-conferir-que-tudo-funciona)
+
+---
+
 ## O que tem nesta pasta
 
 | Arquivo / pasta | Para que serve |
@@ -43,13 +56,13 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 
 ## Jeito 1: rodar no Google Colab (sem instalar nada)
 
-1. **Pegue o notebook.** Baixe o arquivo `projeto_2_colab.ipynb` da página do repositório
-   (link na seção "Onde fica o repositório", logo abaixo).
-2. **Abra no Colab.** Entre em <https://colab.research.google.com>, menu
-   **Arquivo → Fazer upload de notebook**, e escolha o arquivo baixado.
+1. **Abra o notebook no Colab.** Entre em <https://colab.research.google.com>, menu
+   **Arquivo → Abrir notebook → aba GitHub**, cole `dpontejs/periodontite-microbioma-ml` na
+   busca e clique em `projeto_2_colab.ipynb`.
+2. **Salve uma cópia sua** (menu **Arquivo → Salvar uma cópia no Drive**). Assim suas alterações
+   ficam guardadas no seu Google Drive.
 3. **Confira o endereço.** Na primeira célula de código (seção **"0. Preparação do ambiente"**),
-   a linha `URL_REPOSITORIO = "..."` deve ter o endereço do repositório entre as aspas. Se estiver
-   vazia (`""`), cole o endereço.
+   a linha `URL_REPOSITORIO = "..."` já vem com o endereço do repositório. Não precisa mudar nada.
 4. **Rode essa célula** (botão ▶ à esquerda dela, ou `Shift + Enter`). Na primeira vez ela:
    - baixa os arquivos do projeto;
    - instala as bibliotecas nas versões certas;
@@ -64,10 +77,10 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 
 ### Onde fica o repositório
 
-O repositório ainda vai ser publicado no Hugging Face. Quando estiver no ar, o endereço será
-algo como `https://huggingface.co/spaces/<usuario>/<nome>` e vai aparecer aqui. Esse mesmo
-endereço serve para o `git clone`, para o `URL_REPOSITORIO` do notebook e para abrir a
-demonstração no navegador.
+- **Código (GitHub):** <https://github.com/dpontejs/periodontite-microbioma-ml>. É esse
+  endereço que se usa no `git clone` e no `URL_REPOSITORIO` do notebook.
+- **Demonstração (Hugging Face Spaces):** vai ser publicada quando o modelo final estiver pronto;
+  o link vai aparecer aqui.
 
 ---
 
@@ -93,7 +106,7 @@ Você só precisa instalar duas ferramentas: o **git**, que baixa o projeto e gu
 ### Passo 2: baixar o projeto (só na primeira vez)
 
 ```bash
-git clone <URL-DO-REPOSITORIO> periodontite-microbioma-ml
+git clone https://github.com/dpontejs/periodontite-microbioma-ml.git
 cd periodontite-microbioma-ml
 ```
 
@@ -152,35 +165,12 @@ e acesse o endereço que aparecer no terminal (normalmente <http://127.0.0.1:786
 aperte `Ctrl + C` no terminal. Se a pasta `resultados/` ainda não existir, a página mostra um aviso
 em vez da demonstração.
 
-A versão publicada fica no Hugging Face Spaces. É este mesmo repositório: o Hugging Face lê o
-cabeçalho no topo deste README e roda o `app.py`.
+A versão publicada vai ficar no Hugging Face Spaces, que recebe uma cópia deste repositório: o
+Hugging Face lê o cabeçalho no topo deste README e roda o `app.py`.
 
 ---
 
 ## Trabalhando com o git
-
-### As duas linhas do projeto
-
-Combinamos de seguir caminhos separados a partir da versão do notebook de **11/nov** e juntar
-depois. No git isso vira duas "linhas" (branches):
-
-| Branch | O que tem |
-|---|---|
-| `main` | Linha do Diego, que parte da versão de 11/nov. |
-| `v2-colega` | Linha do Renato (a versão v2, editada no Colab/Drive). |
-
-As duas começam do mesmo commit, então na hora de juntar o git consegue mostrar exatamente o que
-cada um mudou desde 11/nov.
-
-**Para registrar uma versão nova do notebook do Renato** (baixada do Drive):
-
-```bash
-git switch v2-colega
-# copie o arquivo baixado por cima de projeto_2_colab.ipynb (mesmo nome)
-git add projeto_2_colab.ipynb
-git commit -m "chore: atualiza versão do colega"
-git switch main
-```
 
 ### Comandos do dia a dia
 
@@ -192,8 +182,9 @@ git push                          # envia para o repositório online
 git pull                          # traz o que os outros enviaram
 ```
 
-`git push` e `git pull` só funcionam depois que o repositório estiver publicado (veja "Onde fica
-o repositório"). Quem clonou com `git clone` já fica conectado automaticamente.
+Quem baixou o projeto com `git clone` já fica conectado ao GitHub, então `git push` e
+`git pull` funcionam direto. Para enviar (`git push`), sua conta do GitHub precisa ter sido
+adicionada como colaboradora do repositório.
 
 ---
 
@@ -222,12 +213,133 @@ atualiza o `requirements.txt` usado pelo Colab e pelo Hugging Face. Faça commit
 
 ---
 
-## Testes automáticos
+## Como conferir que tudo funciona
 
-Para conferir que os arquivos `.py` continuam funcionando depois de uma mudança:
+Use este roteiro depois de baixar o projeto pela primeira vez, ao trocar de computador, ou antes
+de uma apresentação. Cada etapa diz **o comando**, **o que deve aparecer** e **o que fazer se
+não aparecer**. Todos os comandos são rodados no terminal, **dentro da pasta do projeto**
+(`cd periodontite-microbioma-ml`).
+
+### Etapa 1: o ambiente está instalado?
+
+```bash
+uv sync
+```
+
+**Deve aparecer:** algumas linhas terminando sem a palavra `error`. Na primeira vez, ele baixa
+as bibliotecas e pode levar alguns minutos; nas próximas, termina em segundos.
+
+**Se der erro:** confira se o uv está instalado (`uv --version` deve mostrar um número de
+versão). Se não estiver, volte ao "Passo 1" do Jeito 2.
+
+### Etapa 2: os testes automáticos passam?
+
+Os testes conferem, sozinhos, as partes do projeto que não são o notebook: o download dos
+dados, o formato de `resultados/` e a demonstração. Eles não usam a internet nem os dados reais,
+então rodam em poucos segundos.
 
 ```bash
 uv run pytest
 ```
 
-Todos devem aparecer como `passed`.
+**Deve aparecer:** uma linha de pontos (cada ponto é um teste que passou) e, no final, algo como
+`20 passed`. O número pode crescer conforme novos testes forem adicionados. O importante é
+**não aparecer `failed` nem `error`**.
+
+**Se aparecer `failed`:** a saída mostra o nome do teste e o motivo. Normalmente é algo que foi
+alterado em `baixar_dados.py`, `resultados.py` ou `app.py`. Desfaça a última mudança nesses
+arquivos (`git diff` mostra o que mudou) ou peça ajuda no grupo.
+
+### Etapa 3: os dados baixam e estão íntegros?
+
+```bash
+uv run python baixar_dados.py
+```
+
+**Deve aparecer:** uma linha por arquivo, `baixando ...` na primeira vez ou `ok` quando o
+arquivo já existe e está íntegro, e no final:
+
+```
+Pronto: 17 arquivos em .../periodontite-microbioma-ml/datasets
+```
+
+Rodando de novo, todas as linhas devem ser `ok`, sem baixar nada. Isso confirma que os 17
+arquivos conferem com a assinatura (SHA-256) dos arquivos originais do CDC.
+
+**Se der erro:** veja a tabela "Problemas comuns" (linhas sobre download).
+
+### Etapa 4: o notebook roda do começo ao fim?
+
+Abra com `uv run jupyter lab`, clique em `projeto_2_colab.ipynb` e use o menu
+**Run → Run All Cells**. Ou rode tudo direto no terminal, sem abrir o navegador:
+
+```bash
+uv run jupyter nbconvert --to notebook --execute --inplace projeto_2_colab.ipynb
+```
+
+Esse comando executa todas as células e salva os resultados dentro do próprio notebook. Leva
+alguns minutos (a parte mais demorada é o treino dos modelos nas 10 divisões treino/teste).
+
+**Deve aparecer:** nenhuma célula com erro (no Jupyter, erros aparecem em vermelho; no comando
+acima, o terminal mostraria `CellExecutionError`). Confira também alguns números-chave, que
+devem ser iguais (pelo menos nas duas primeiras casas decimais) em qualquer computador, porque
+as sementes aleatórias são fixas:
+
+| Onde | O que conferir | Valor esperado |
+|---|---|---|
+| Seção 4.3 | participantes sem / com periodontite | 2985 / 2892 |
+| Seção 5.1 | dimensões da matriz CLR | (5877, 1349) |
+| Seção 5.2 | AUC média do XGBoost | 0,777 ± 0,011 |
+| Seção 5.2 | AUC do DummyClassifier | 0,500 |
+| Seção 6 | modelo com maior AUC média | XGBoost |
+
+> Esses valores valem para a versão atual do notebook. Se alguém mudar a análise (filtros,
+> modelos, parâmetros), os números mudam junto; atualize esta tabela no mesmo commit.
+
+**Se der erro:** leia a última linha da mensagem em vermelho. `ModuleNotFoundError` quase
+sempre é o notebook usando o Python errado (veja "Problemas comuns"). `FileNotFoundError` com
+nome de arquivo `.xpt` ou `.txt` indica que a Etapa 3 não foi feita.
+
+### Etapa 5: a demonstração abre?
+
+```bash
+uv run python app.py
+```
+
+**Deve aparecer:** uma linha parecida com `* Running on local URL:  http://127.0.0.1:7860`. Abra esse endereço
+no navegador.
+
+- **Se o notebook ainda não salvou resultados** (a célula `salvar_resultados(...)` ainda está
+  comentada), a página mostra só o aviso *"Resultados ainda não disponíveis"*. Isso é o esperado
+  nesse momento, e já confirma que o app funciona.
+- **Depois que existir a pasta `resultados/`**, confira as três abas:
+  - **Predição:** ao escolher outro participante na lista, a probabilidade, a condição real e a
+    tabela de gêneros mudam;
+  - **Desempenho:** aparece a tabela de métricas e as figuras salvas;
+  - **Sobre:** aparece o texto explicando o projeto.
+
+Para fechar o app, volte ao terminal e aperte `Ctrl + C`.
+
+### Etapa 6 (opcional): o fluxo do Colab funciona?
+
+Siga o "Jeito 1" do começo deste README numa sessão nova do Colab. Deve acontecer exatamente
+isto:
+
+1. 1ª execução da célula "0. Preparação do ambiente": instala as bibliotecas e a sessão
+   reinicia sozinha (aviso de sessão travada/reiniciada);
+2. 2ª execução da mesma célula: aparecem as linhas `baixando ...` e `Pronto: 17 arquivos`;
+3. **Ambiente de execução → Executar tudo**: o notebook roda até o fim sem erro, com os mesmos
+   números da tabela da Etapa 4.
+
+### Resumo rápido
+
+Para quem já fez tudo uma vez e só quer conferir rapidamente:
+
+```bash
+cd periodontite-microbioma-ml
+uv sync
+uv run pytest
+uv run python baixar_dados.py
+uv run jupyter nbconvert --to notebook --execute --inplace projeto_2_colab.ipynb
+uv run python app.py
+```
