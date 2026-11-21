@@ -53,9 +53,11 @@ def salvar_resultados(
     teste.index.name = "SEQN"
     teste["rotulo"] = rotulos.to_numpy()
     teste.to_csv(pasta / "teste.csv.gz")
-    (pasta / "metricas.json").write_text(json.dumps(metricas, indent=2, ensure_ascii=False))
+    (pasta / "metricas.json").write_text(
+        json.dumps(metricas, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     (pasta / "rotulos_atributos.json").write_text(
-        json.dumps(rotulos_atributos, indent=2, ensure_ascii=False)
+        json.dumps(rotulos_atributos, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     for nome, figura in figuras.items():
         figura.savefig(pasta / "figuras" / f"{nome}.png", dpi=150, bbox_inches="tight")
@@ -71,7 +73,7 @@ def carregar_resultados(pasta: Path = Path("resultados")) -> Resultados:
     return Resultados(
         modelo=joblib.load(pasta / "modelo.joblib"),
         teste=pd.read_csv(pasta / "teste.csv.gz", index_col="SEQN"),
-        metricas=json.loads((pasta / "metricas.json").read_text()),
-        rotulos_atributos=json.loads((pasta / "rotulos_atributos.json").read_text()),
+        metricas=json.loads((pasta / "metricas.json").read_text(encoding="utf-8")),
+        rotulos_atributos=json.loads((pasta / "rotulos_atributos.json").read_text(encoding="utf-8")),
         figuras=sorted((pasta / "figuras").glob("*.png")),
     )
