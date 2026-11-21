@@ -93,8 +93,8 @@ Você só precisa instalar duas ferramentas: o **git**, que baixa o projeto e gu
 ### Passo 2: baixar o projeto (só na primeira vez)
 
 ```bash
-git clone <URL-DO-REPOSITORIO> projeto2
-cd projeto2
+git clone <URL-DO-REPOSITORIO> periodontite-microbioma-ml
+cd periodontite-microbioma-ml
 ```
 
 ### Passo 3: criar o ambiente (só na primeira vez, ou quando a lista de bibliotecas mudar)
@@ -123,7 +123,7 @@ uv run jupyter lab
 Abre uma aba no navegador. Clique em `projeto_2_colab.ipynb` e rode as células em ordem.
 
 Nos outros dias, para voltar a trabalhar: abra o terminal, entre na pasta do projeto com
-`cd projeto2` (ou o caminho onde você a clonou) e rode `uv run jupyter lab` de novo.
+`cd periodontite-microbioma-ml` (ou o caminho onde você a clonou) e rode `uv run jupyter lab` de novo.
 
 > **Sempre use `uv run` na frente dos comandos.** É ele que garante que o Python usado é o do
 > projeto, com as bibliotecas certas. Se usar o VS Code, escolha o interpretador `.venv` como kernel.
