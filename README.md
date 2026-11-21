@@ -43,19 +43,31 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 
 ## Jeito 1: rodar no Google Colab (sem instalar nada)
 
-1. Abra o [Google Colab](https://colab.research.google.com) e carregue o `projeto_2_colab.ipynb`
-   (menu **Arquivo → Fazer upload de notebook**, ou abra direto do Google Drive).
-2. Na primeira célula de código (seção **"0. Preparação do ambiente"**), confira se a linha
-   `URL_REPOSITORIO = "..."` tem o endereço do repositório.
-3. Rode essa célula (botão ▶ ou `Shift + Enter`). Ela:
+1. **Pegue o notebook.** Baixe o arquivo `projeto_2_colab.ipynb` da página do repositório
+   (link na seção "Onde fica o repositório", logo abaixo).
+2. **Abra no Colab.** Entre em <https://colab.research.google.com>, menu
+   **Arquivo → Fazer upload de notebook**, e escolha o arquivo baixado.
+3. **Confira o endereço.** Na primeira célula de código (seção **"0. Preparação do ambiente"**),
+   a linha `URL_REPOSITORIO = "..."` deve ter o endereço do repositório entre as aspas. Se estiver
+   vazia (`""`), cole o endereço.
+4. **Rode essa célula** (botão ▶ à esquerda dela, ou `Shift + Enter`). Na primeira vez ela:
    - baixa os arquivos do projeto;
    - instala as bibliotecas nas versões certas;
-   - baixa os dados do NHANES (uns 130 MB, leva cerca de 1 minuto).
-4. Depois é só rodar as outras células em ordem (menu **Ambiente de execução → Executar tudo**
-   também funciona).
+   - **reinicia a sessão sozinha.** Aparece um aviso dizendo que a sessão travou ou foi
+     reiniciada. Isso é esperado.
+5. **Rode a mesma célula de novo** depois que o Colab reconectar. Agora ela pula a instalação e
+   baixa os dados do NHANES (uns 130 MB, cerca de 1 minuto).
+6. Depois é só rodar as outras células em ordem. O menu **Ambiente de execução → Executar tudo**
+   também funciona.
 
-> **Se o Colab pedir para reiniciar a sessão** depois da instalação, aceite e rode a célula
-> "0. Preparação do ambiente" de novo. Na segunda vez ela é rápida, porque nada é baixado de novo.
+> Se você fechar o Colab e voltar outro dia, a máquina dele é nova: repita a partir do passo 4.
+
+### Onde fica o repositório
+
+O repositório ainda vai ser publicado no Hugging Face. Quando estiver no ar, o endereço será
+algo como `https://huggingface.co/spaces/<usuario>/<nome>` e vai aparecer aqui. Esse mesmo
+endereço serve para o `git clone`, para o `URL_REPOSITORIO` do notebook e para abrir a
+demonstração no navegador.
 
 ---
 
@@ -109,6 +121,9 @@ uv run jupyter lab
 ```
 
 Abre uma aba no navegador. Clique em `projeto_2_colab.ipynb` e rode as células em ordem.
+
+Nos outros dias, para voltar a trabalhar: abra o terminal, entre na pasta do projeto com
+`cd projeto2` (ou o caminho onde você a clonou) e rode `uv run jupyter lab` de novo.
 
 > **Sempre use `uv run` na frente dos comandos.** É ele que garante que o Python usado é o do
 > projeto, com as bibliotecas certas. Se usar o VS Code, escolha o interpretador `.venv` como kernel.
@@ -176,6 +191,9 @@ git commit -m "feat: descreve o que foi feito"
 git push                          # envia para o repositório online
 git pull                          # traz o que os outros enviaram
 ```
+
+`git push` e `git pull` só funcionam depois que o repositório estiver publicado (veja "Onde fica
+o repositório"). Quem clonou com `git clone` já fica conectado automaticamente.
 
 ---
 
