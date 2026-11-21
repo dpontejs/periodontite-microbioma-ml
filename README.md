@@ -42,6 +42,7 @@ dados demográficos e de saúde. A condição periodontal segue os critérios de
 |---|---|
 | `projeto_2_colab.ipynb` | **O notebook com toda a análise.** É aqui que se trabalha. |
 | `baixar_dados.py` | Baixa os dados do site do CDC para a pasta `datasets/`. O notebook chama ele sozinho. |
+| `microbioma.py` | A transformação CLR (mesma da aula de metagenômica), usada pelo notebook e pelo modelo final. |
 | `resultados.py` | Funções para salvar o modelo final na pasta `resultados/`. |
 | `resultados/` | Modelo, métricas e figuras salvos pelo notebook. É o que a demonstração mostra. |
 | `app.py` | A demonstração interativa (uma página web feita com Gradio). |
@@ -56,14 +57,16 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 
 ## Jeito 1: rodar no Google Colab (sem instalar nada)
 
-1. **Abra o notebook no Colab.** Entre em <https://colab.research.google.com>, menu
-   **Arquivo → Abrir notebook → aba GitHub**, cole `dpontejs/periodontite-microbioma-ml` na
-   busca e clique em `projeto_2_colab.ipynb`.
-2. **Salve uma cópia sua** (menu **Arquivo → Salvar uma cópia no Drive**). Assim suas alterações
-   ficam guardadas no seu Google Drive.
+1. **Abra o notebook no Colab** pelo link direto (precisa estar logado numa conta Google):
+   <https://colab.research.google.com/github/dpontejs/periodontite-microbioma-ml/blob/main/projeto_2_colab.ipynb>
+2. **Salve uma cópia sua** (menu **Arquivo → Salvar uma cópia no Drive**). A cópia abre numa
+   **aba nova**, com o nome "Cópia de projeto_2_colab.ipynb": feche a aba antiga e continue na
+   nova. Assim suas alterações ficam guardadas no seu Google Drive.
 3. **Confira o endereço.** Na primeira célula de código (seção **"0. Preparação do ambiente"**),
    a linha `URL_REPOSITORIO = "..."` já vem com o endereço do repositório. Não precisa mudar nada.
-4. **Rode essa célula** (botão ▶ à esquerda dela, ou `Shift + Enter`). Na primeira vez ela:
+4. **Rode essa célula** (botão ▶ à esquerda dela, ou `Shift + Enter`). Se aparecer o aviso
+   *"Este notebook não foi criado pelo Google"*, clique em **Executar mesmo assim**: ele aparece
+   para qualquer notebook aberto do GitHub. Na primeira vez a célula:
    - baixa os arquivos do projeto;
    - instala as bibliotecas nas versões certas;
    - **reinicia a sessão sozinha.** Aparece um aviso dizendo que a sessão travou ou foi
@@ -73,7 +76,19 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 6. Depois é só rodar as outras células em ordem. O menu **Ambiente de execução → Executar tudo**
    também funciona.
 
-> Se você fechar o Colab e voltar outro dia, a máquina dele é nova: repita a partir do passo 4.
+> **Tempo de execução.** O notebook inteiro leva cerca de 15 a 30 minutos no Colab. A parte mais
+> lenta seria a busca de hiperparâmetros (seção 8), mas ela vem desligada: a opção
+> `REFAZER_BUSCA = False` reaproveita os hiperparâmetros já encontrados, guardados em
+> `resultados/hiperparametros_por_semente.csv`, e produz exatamente os mesmos resultados. Só mude
+> para `True` se alterar a análise; aí a busca completa leva mais de 1 hora no Colab.
+
+> Se você fechar o Colab e voltar outro dia, a máquina dele é nova: abra a sua cópia no Drive e
+> repita a partir do passo 4.
+
+> **Suas alterações no Colab ficam só na sua cópia do Drive**, e não chegam ao GitHub sozinhas.
+> Para enviá-las ao repositório, use **Arquivo → Salvar uma cópia no GitHub** (sua conta precisa
+> ser colaboradora do repositório) ou baixe o `.ipynb` (**Arquivo → Fazer download → .ipynb**),
+> coloque-o na pasta do projeto no seu computador e faça o commit como em "Trabalhando com o git".
 
 ### Onde fica o repositório
 
@@ -89,9 +104,28 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 Você só precisa instalar duas ferramentas: o **git**, que baixa o projeto e guarda o histórico, e o
 **uv**, que instala o Python e as bibliotecas certas. Não é preciso instalar o Python separado.
 
+Funciona em **Windows, macOS e Linux**, com os mesmos comandos:
+
+- **Windows:** o "terminal" é o **PowerShell**. Para abrir, aperte a tecla Windows, digite
+  `PowerShell` e aperte Enter. Todos os comandos deste README funcionam nele do jeito que estão
+  escritos (`cd`, `git`, `uv run ...`).
+- **macOS:** use o app **Terminal**.
+- **Linux:** use o terminal da sua distribuição.
+
+Para entrar numa pasta, use `cd` seguido do caminho. Por exemplo, `cd Documents` entra na pasta
+Documentos. O projeto vai ser baixado dentro da pasta onde o terminal estiver quando você rodar
+o `git clone` do Passo 2.
+
 ### Passo 1: instalar as ferramentas (só na primeira vez)
 
-- **git:** baixe em <https://git-scm.com/downloads> e instale com as opções padrão.
+- **git:** baixe em <https://git-scm.com/downloads> e instale com as opções padrão. No Windows,
+  o instalador tem várias telas: pode clicar em **Next** em todas e, no fim, em **Install**.
+  Depois de instalar, diga ao git o seu nome e e-mail (só uma vez; use o e-mail da sua conta do
+  GitHub), senão o primeiro `git commit` dá erro:
+  ```bash
+  git config --global user.name "Seu Nome"
+  git config --global user.email "seu-email@exemplo.com"
+  ```
 - **uv:**
   - Windows (no PowerShell):
     ```powershell
@@ -104,6 +138,19 @@ Você só precisa instalar duas ferramentas: o **git**, que baixa o projeto e gu
   Feche e abra o terminal de novo depois de instalar.
 
 ### Passo 2: baixar o projeto (só na primeira vez)
+
+Escolha uma pasta para guardar o projeto e entre nela com `cd`. **No Windows, evite a pasta
+Documentos e a Área de Trabalho**, que muitas vezes são sincronizadas pelo OneDrive: o projeto
+cria milhares de arquivos (ambiente e dados) que deixam a sincronização lenta e podem travar.
+Uma opção simples no Windows:
+
+```powershell
+mkdir C:\projetos
+cd C:\projetos
+```
+
+(No macOS ou Linux, pode usar `cd ~`, que é a sua pasta pessoal.) Depois baixe o projeto e entre
+na pasta dele:
 
 ```bash
 git clone https://github.com/dpontejs/periodontite-microbioma-ml.git
@@ -135,8 +182,10 @@ uv run jupyter lab
 
 Abre uma aba no navegador. Clique em `projeto_2_colab.ipynb` e rode as células em ordem.
 
-Nos outros dias, para voltar a trabalhar: abra o terminal, entre na pasta do projeto com
-`cd periodontite-microbioma-ml` (ou o caminho onde você a clonou) e rode `uv run jupyter lab` de novo.
+Nos outros dias, para voltar a trabalhar: abra o terminal, entre na pasta do projeto usando o
+caminho completo (no Windows, `cd C:\projetos\periodontite-microbioma-ml` se seguiu o exemplo
+do Passo 2) e rode `uv run jupyter lab` de novo. Atalho no Windows: no Explorador de Arquivos,
+clique com o botão direito na pasta `periodontite-microbioma-ml` e escolha **Abrir no Terminal**.
 
 > **Sempre use `uv run` na frente dos comandos.** É ele que garante que o Python usado é o do
 > projeto, com as bibliotecas certas. Se usar o VS Code, escolha o interpretador `.venv` como kernel.
@@ -152,8 +201,10 @@ A demonstração é uma página com três abas:
 - **Desempenho:** métricas e gráficos do modelo.
 - **Sobre:** a pergunta, os dados e como usar a página.
 
-O app só lê a pasta `resultados/`. Para gerar essa pasta, rode o notebook até o final: a última
-seção, **"Salvar os resultados para a demonstração"**, chama `salvar_resultados(...)`.
+O app só lê a pasta `resultados/`, que já vem no repositório: dá para abrir a demonstração logo
+depois de baixar o projeto, sem rodar o notebook. Quando o notebook é executado até o fim, a
+seção **"9.2 Salvar os resultados para a demonstração"** grava essa pasta de novo; se a análise
+mudou, faça commit da pasta `resultados/` junto com o notebook.
 
 Para abrir a demonstração no seu computador:
 
@@ -184,7 +235,8 @@ git pull                          # traz o que os outros enviaram
 
 Quem baixou o projeto com `git clone` já fica conectado ao GitHub, então `git push` e
 `git pull` funcionam direto. Para enviar (`git push`), sua conta do GitHub precisa ter sido
-adicionada como colaboradora do repositório.
+adicionada como colaboradora do repositório. No primeiro `git push`, abre uma janela do
+navegador pedindo para entrar na sua conta do GitHub; depois disso, não pede mais.
 
 ---
 
@@ -205,11 +257,13 @@ atualiza o `requirements.txt` usado pelo Colab e pelo Hugging Face. Faça commit
 | O que aparece | O que fazer |
 |---|---|
 | `ModuleNotFoundError: No module named ...` no notebook | O notebook está usando outro Python. Abra com `uv run jupyter lab` ou escolha o kernel `.venv`. No Colab, rode de novo a célula "0. Preparação do ambiente". |
-| `Preencha URL_REPOSITORIO...` no Colab | Coloque o endereço do repositório na linha `URL_REPOSITORIO = ""` da primeira célula de código. |
+| `Preencha URL_REPOSITORIO...` no Colab | O endereço do repositório foi apagado da primeira célula de código. Restaure a linha: `URL_REPOSITORIO = "https://github.com/dpontejs/periodontite-microbioma-ml.git"`. |
 | `Não foi possível baixar ...` | Sem internet ou site do CDC fora do ar. Espere um pouco e rode de novo. Só os arquivos que faltam são baixados. |
 | `... não confere com o esperado` | O arquivo no site do CDC mudou ou veio corrompido. Rode de novo. Se persistir, avise no grupo. |
-| A página do app diz "Resultados ainda não disponíveis" | Falta gerar a pasta `resultados/`: rode o notebook até a seção "Salvar os resultados para a demonstração". |
+| A página do app diz "Resultados ainda não disponíveis" | A pasta `resultados/` sumiu ou está incompleta. Recupere a versão do repositório com `git checkout resultados/`, ou rode o notebook até a seção "9.2 Salvar os resultados para a demonstração". |
 | `uv: command not found` | Feche e abra o terminal depois de instalar o uv. Se continuar, refaça o Passo 1. |
+| No Windows: `uv : O termo 'uv' não é reconhecido...` (ou `git` não reconhecido) | Mesmo caso acima: feche e abra o PowerShell depois de instalar. Se continuar, reinicie o computador, que atualiza a lista de programas instalados. |
+| No Windows: aviso sobre *política de execução* ao instalar o uv | Use exatamente o comando do Passo 1, que já inclui `-ExecutionPolicy ByPass`. |
 
 ---
 
@@ -243,7 +297,7 @@ uv run pytest
 ```
 
 **Deve aparecer:** uma linha de pontos (cada ponto é um teste que passou) e, no final, algo como
-`20 passed`. O número pode crescer conforme novos testes forem adicionados. O importante é
+`29 passed`. O número pode crescer conforme novos testes forem adicionados. O importante é
 **não aparecer `failed` nem `error`**.
 
 **Se aparecer `failed`:** a saída mostra o nome do teste e o motivo. Normalmente é algo que foi
@@ -263,6 +317,9 @@ arquivo já existe e está íntegro, e no final:
 Pronto: 17 arquivos em .../periodontite-microbioma-ml/datasets
 ```
 
+(No Windows, o caminho aparece com barras invertidas, por exemplo
+`C:\projetos\periodontite-microbioma-ml\datasets`. Está certo.)
+
 Rodando de novo, todas as linhas devem ser `ok`, sem baixar nada. Isso confirma que os 17
 arquivos conferem com a assinatura (SHA-256) dos arquivos originais do CDC.
 
@@ -278,7 +335,9 @@ uv run jupyter nbconvert --to notebook --execute --inplace projeto_2_colab.ipynb
 ```
 
 Esse comando executa todas as células e salva os resultados dentro do próprio notebook. Leva
-alguns minutos (a parte mais demorada é o treino dos modelos nas 10 divisões treino/teste).
+uns 10 a 20 minutos, dependendo do computador (a parte mais demorada é o treino dos modelos nas 10
+divisões treino/teste). Com `REFAZER_BUSCA = True` na seção 8, some mais uns 12 minutos num
+computador com muitos núcleos, ou bem mais num notebook simples.
 
 **Deve aparecer:** nenhuma célula com erro (no Jupyter, erros aparecem em vermelho; no comando
 acima, o terminal mostraria `CellExecutionError`). Confira também alguns números-chave, que
@@ -292,6 +351,10 @@ as sementes aleatórias são fixas:
 | Seção 5.2 | AUC média do XGBoost | 0,777 ± 0,011 |
 | Seção 5.2 | AUC do DummyClassifier | 0,500 |
 | Seção 6 | modelo com maior AUC média | XGBoost |
+| Seção 7.1 | gêneros após remover constantes / correlacionados | 1015 / 711 |
+| Seção 8 | AUC média do XGBoost ajustado | 0,795 ± 0,007 |
+| Seção 8 | sementes em que o ajuste melhorou a AUC | 10 de 10 |
+| Seção 9.1 | AUC do modelo final na semente 42 | 0,811 |
 
 > Esses valores valem para a versão atual do notebook. Se alguém mudar a análise (filtros,
 > modelos, parâmetros), os números mudam junto; atualize esta tabela no mesmo commit.
@@ -309,10 +372,7 @@ uv run python app.py
 **Deve aparecer:** uma linha parecida com `* Running on local URL:  http://127.0.0.1:7860`. Abra esse endereço
 no navegador.
 
-- **Se o notebook ainda não salvou resultados** (a célula `salvar_resultados(...)` ainda está
-  comentada), a página mostra só o aviso *"Resultados ainda não disponíveis"*. Isso é o esperado
-  nesse momento, e já confirma que o app funciona.
-- **Depois que existir a pasta `resultados/`**, confira as três abas:
+Confira as três abas:
   - **Predição:** ao escolher outro participante na lista, a probabilidade, a condição real e a
     tabela de gêneros mudam;
   - **Desempenho:** aparece a tabela de métricas e as figuras salvas;
