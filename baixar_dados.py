@@ -12,6 +12,7 @@ quantas vezes quiser.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -52,6 +53,7 @@ def _url(nome: str) -> str:
 ARQUIVOS: dict[str, tuple[str, str]] = {nome: (_url(nome), sha) for nome, sha in _SHA256.items()}
 
 _TAMANHO_BLOCO = 1024 * 1024
+_TIMEOUT_SEGUNDOS = 60
 
 
 def _sha256_do_arquivo(caminho: Path) -> str:
@@ -66,15 +68,16 @@ def _baixar_um(nome: str, url: str, sha_esperado: str, destino: Path, abrir_url)
     parcial = destino / f"{nome}.part"
     requisicao = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     try:
-        try:
-            resposta = abrir_url(requisicao)
-        except urllib.error.URLError as erro:
-            raise RuntimeError(f"Não foi possível baixar {nome} de {url}: {erro}") from erro
         h = hashlib.sha256()
-        with resposta, parcial.open("wb") as saida:
-            for bloco in iter(lambda: resposta.read(_TAMANHO_BLOCO), b""):
-                h.update(bloco)
-                saida.write(bloco)
+        try:
+            resposta = abrir_url(requisicao, timeout=_TIMEOUT_SEGUNDOS)
+            with resposta, parcial.open("wb") as saida:
+                for bloco in iter(lambda: resposta.read(_TAMANHO_BLOCO), b""):
+                    h.update(bloco)
+                    saida.write(bloco)
+        except (OSError, http.client.HTTPException) as erro:
+            # URLError, HTTPError, timeout e conexão caindo no meio são OSError.
+            raise RuntimeError(f"Não foi possível baixar {nome} de {url}: {erro}") from erro
         if h.hexdigest() != sha_esperado:
             raise ValueError(
                 f"{nome}: o conteúdo baixado de {url} não confere com o esperado "

@@ -81,10 +81,22 @@ def test_falha_no_meio_nao_deixa_arquivo(tmp_path):
     def abrir(requisicao, *args, **kwargs):
         return RespostaQueCai(b"abc")
 
-    with pytest.raises(ConnectionError):
+    with pytest.raises(RuntimeError, match="a.xpt"):
         baixar(tmp_path, {"a.xpt": MANIFESTO["a.xpt"]}, abrir_url=abrir)
 
     assert list(tmp_path.iterdir()) == []
+
+
+def test_usa_timeout(tmp_path):
+    chamadas = []
+
+    def abrir(requisicao, *args, **kwargs):
+        chamadas.append(kwargs.get("timeout"))
+        return io.BytesIO(b"abc")
+
+    baixar(tmp_path, {"a.xpt": MANIFESTO["a.xpt"]}, abrir_url=abrir)
+
+    assert chamadas == [60]
 
 
 def test_erro_http_cita_arquivo(tmp_path):
