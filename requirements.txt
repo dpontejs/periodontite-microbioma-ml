@@ -116,6 +116,9 @@ numpy==2.5.5
     #   scikit-learn
     #   scipy
     #   seaborn
+    #   xgboost
+nvidia-nccl-cu13==2.32.6 ; sys_platform == 'linux'
+    # via xgboost
 opentelemetry-api==1.45.2
     # via fastapi
 orjson==3.13.0
@@ -170,6 +173,7 @@ scipy==1.18.1
     # via
     #   periodontite-microbioma-ml
     #   scikit-learn
+    #   xgboost
 seaborn==0.13.2
     # via periodontite-microbioma-ml
 semantic-version==2.10.0
@@ -217,3 +221,5 @@ tzdata==2026.6
     #   python-dateutil
 uvicorn==0.54.0
     # via gradio
+xgboost==3.4.1
+    # via periodontite-microbioma-ml
