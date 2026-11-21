@@ -1,0 +1,9 @@
+{
+  "AUC — média em 10 sementes": 0.7949,
+  "AUC — desvio padrão": 0.0074,
+  "Acurácia — média em 10 sementes": 0.7298,
+  "Precisão — média em 10 sementes": 0.7517,
+  "Recall — média em 10 sementes": 0.6732,
+  "F1 — média em 10 sementes": 0.7101,
+  "AUC — semente 42 (modelo da demonstração)": 0.8113
+}
