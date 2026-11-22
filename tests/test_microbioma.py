@@ -108,3 +108,44 @@ def test_funciona_com_colunas_sem_nome_em_texto():
     resultado = RemoverCorrelacionados(0.8).fit(X).transform(X)
 
     assert list(resultado.columns) == [0, 3]
+
+
+from microbioma import FiltroPrevalencia  # noqa: E402
+
+
+def _abundancias():
+    # 10 participantes; abundâncias relativas
+    return pd.DataFrame({
+        "comum": [0.5] * 10,                         # abundante e prevalente: fica
+        "raro_e_pouco": [0.0] * 9 + [0.0001],        # média 0,001% e prevalência 10%: sai
+        "raro_mas_abundante": [0.0] * 9 + [0.5],     # prevalência 10%, média 5%: fica
+        "frequente_mas_pouco": [0.0001] * 10,        # média 0,01%, prevalência 100%: fica
+    })
+
+
+def test_filtro_remove_so_quem_atende_aos_dois_criterios():
+    filtro = FiltroPrevalencia().fit(_abundancias())
+
+    assert list(filtro.get_feature_names_out()) == ["comum", "raro_mas_abundante", "frequente_mas_pouco"]
+    assert list(filtro.transform(_abundancias()).columns) == ["comum", "raro_mas_abundante", "frequente_mas_pouco"]
+
+
+def test_filtro_usa_apenas_treino():
+    treino = _abundancias()
+    filtro = FiltroPrevalencia().fit(treino)
+
+    teste = treino.copy()
+    teste["raro_e_pouco"] = 0.3  # no teste ele seria abundante, mas a decisão é do treino
+
+    assert "raro_e_pouco" not in filtro.transform(teste).columns
+
+
+def test_filtro_em_pipeline_salvo_e_recarregado(tmp_path):
+    X = _abundancias()
+    y = np.tile([0, 1], 5)
+    modelo = make_pipeline(FiltroPrevalencia(), FunctionTransformer(clr), LogisticRegression()).fit(X, y)
+    joblib.dump(modelo, tmp_path / "m.joblib")
+
+    recarregado = joblib.load(tmp_path / "m.joblib")
+
+    assert recarregado.predict_proba(X) == pytest.approx(modelo.predict_proba(X))
