@@ -1,15 +1,3 @@
----
-title: Microbioma oral e periodontite
-emoji: 🦷
-colorFrom: blue
-colorTo: green
-sdk: gradio
-sdk_version: 6.32.0
-python_version: "3.12"
-app_file: app.py
-pinned: false
----
-
 # Classificação periodontal a partir do microbioma oral
 
 Projeto 2 da disciplina **IMD0611 — Aprendizado de Máquina em Bioinformática** (IMD/UFRN, 2026).
@@ -48,7 +36,7 @@ dados demográficos e de saúde. A condição periodontal segue os critérios de
 | `app.py` | A demonstração interativa (uma página web feita com Gradio). |
 | `images/` | Imagens usadas no notebook. |
 | `pyproject.toml`, `uv.lock` | Lista das bibliotecas e das versões exatas usadas. |
-| `requirements.txt` | A mesma lista, num formato que o Colab e o Hugging Face entendem. **Não edite à mão** (veja "Adicionar uma biblioteca"). |
+| `requirements.txt` | A mesma lista, num formato que o Colab entende. **Não edite à mão** (veja "Adicionar uma biblioteca"). |
 | `tests/` | Testes automáticos dos arquivos `.py`. |
 
 A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os dados do CDC.
@@ -94,8 +82,8 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 
 - **Código (GitHub):** <https://github.com/dpontejs/periodontite-microbioma-ml>. É esse
   endereço que se usa no `git clone` e no `URL_REPOSITORIO` do notebook.
-- **Demonstração (Hugging Face Spaces):** vai ser publicada quando o modelo final estiver pronto;
-  o link vai aparecer aqui.
+- **Demonstração:** não fica hospedada na internet; ela abre no seu computador ou dentro do
+  Colab (veja "A demonstração (app)").
 
 ---
 
@@ -216,8 +204,18 @@ e acesse o endereço que aparecer no terminal (normalmente <http://127.0.0.1:786
 aperte `Ctrl + C` no terminal. Se a pasta `resultados/` ainda não existir, a página mostra um aviso
 em vez da demonstração.
 
-A versão publicada vai ficar no Hugging Face Spaces, que recebe uma cópia deste repositório: o
-Hugging Face lê o cabeçalho no topo deste README e roda o `app.py`.
+Para abrir a demonstração **no Colab**:
+
+1. rode o notebook até o fim (ou pelo menos a célula 0, já que a pasta `resultados/` vem pronta
+   no repositório);
+2. na seção **"9.3 Abrir a demonstração"**, troque `ABRIR_DEMO = False` por `ABRIR_DEMO = True`
+   e rode a célula;
+3. a demonstração aparece dentro do próprio notebook e, logo acima dela, um link público
+   terminado em `.gradio.live`. Esse link abre a demonstração em qualquer navegador e funciona
+   **por 72 horas** (ou até a sessão do Colab ser encerrada): dá para mandar ao professor ou usar
+   na apresentação.
+
+Para parar, clique no botão ■ da célula ou encerre a sessão do Colab.
 
 ---
 
@@ -248,7 +246,7 @@ uv export --no-hashes --no-dev -o requirements.txt
 ```
 
 O primeiro comando instala e registra a biblioteca no `pyproject.toml` e no `uv.lock`. O segundo
-atualiza o `requirements.txt` usado pelo Colab e pelo Hugging Face. Faça commit dos três arquivos.
+atualiza o `requirements.txt` usado pelo Colab. Faça commit dos três arquivos.
 
 ---
 
