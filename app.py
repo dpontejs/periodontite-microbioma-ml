@@ -22,23 +22,32 @@ SOBRE = """
 ## Microbioma oral e periodontite
 
 **Pergunta:** a composição do microbioma oral permite distinguir pessoas com e sem
-periodontite?
+periodontite? E quanto as características do participante acrescentam a essa informação?
 
 **Dados:** NHANES 2009–2012 (CDC, EUA). Amostras de enxágue bucal sequenciadas
 (gene 16S rRNA, região V4, processadas com DADA2 e classificadas com SILVA v123),
-cruzadas com o exame periodontal completo de cada participante. A condição
-periodontal segue os critérios de vigilância CDC/AAP, agrupados em dois rótulos:
-*Sem periodontite* e *Periodontite* (leve, moderada ou grave).
+cruzadas com o exame periodontal completo de cada participante e com dados
+demográficos e de saúde. A condição periodontal segue os critérios de vigilância
+CDC/AAP, agrupados em dois rótulos: *Sem periodontite* e *Periodontite* (leve,
+moderada ou grave).
+
+**Modelos**
+
+- **Modelo principal:** gêneros do microbioma + características do participante
+  (idade, sexo, raça/etnia, escolaridade, estado civil, renda, álcool, atividade
+  física, hipertensão, diabetes, doença cardiovascular e câncer).
+- **Só microbioma:** apenas os gêneros. Comparar as duas probabilidades mostra quanto
+  da previsão vem do microbioma.
 
 **Como usar esta página**
 
-- **Predição:** escolha um participante do conjunto de teste (dados que o modelo
-  não viu no treino). Aparecem a probabilidade estimada de cada classe, o rótulo
-  real e os gêneros bacterianos mais abundantes na amostra.
-- **Desempenho:** métricas e gráficos do modelo no conjunto de teste.
+- **Predição:** escolha um participante do conjunto de teste (dados que os modelos
+  não viram no treino). Aparecem as probabilidades estimadas pelos dois modelos, a
+  condição real e os gêneros bacterianos mais abundantes na amostra.
+- **Desempenho:** métricas (média de 10 divisões treino/teste) e gráficos.
 
-O código completo da análise está no notebook `projeto_2_colab.ipynb`, no mesmo
-repositório desta página.
+O código completo da análise está no notebook `periodontite_v3_conjunta.ipynb`, no
+repositório https://github.com/dpontejs/periodontite-microbioma-ml.
 
 *IMD0611 — Aprendizado de Máquina em Bioinformática (IMD/UFRN), 2026.
 Diego Medeiros e Renato Carvalho.*
