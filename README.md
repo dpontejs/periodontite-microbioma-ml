@@ -9,10 +9,26 @@ Autores: Diego Medeiros e Renato Carvalho.
 bucal (16S rRNA, DADA2, SILVA v123) e o exame periodontal completo de cada participante, além de
 dados demográficos e de saúde. A condição periodontal segue os critérios de vigilância CDC/AAP.
 
+## Principais resultados
+
+Média ± desvio padrão em 10 divisões treino/teste (`periodontite_v3_conjunta.ipynb`):
+
+| Modelo | Atributos | AUC |
+|---|---|---|
+| C | só covariáveis (idade, sexo, renda, saúde geral…) | 0,697 ± 0,009 |
+| A | só gêneros do microbioma | 0,789 ± 0,012 |
+| **B** | **gêneros + covariáveis** | **0,834 ± 0,010** |
+
+O microbioma sozinho já supera as covariáveis, e somar os dois dá o melhor modelo: o microbioma
+acrescenta +0,137 de AUC às covariáveis, e as covariáveis acrescentam +0,045 ao microbioma. Os
+gêneros mais importantes incluem *Treponema*, *Desulfobulbus*, *Porphyromonas*, *Filifactor* e
+*Tannerella*, conhecidos na literatura sobre periodontite.
+
 ---
 
 ## Sumário
 
+- [Principais resultados](#principais-resultados)
 - [O que tem nesta pasta](#o-que-tem-nesta-pasta)
 - [Jeito 1: rodar no Google Colab](#jeito-1-rodar-no-google-colab-sem-instalar-nada)
 - [Jeito 2: rodar no seu computador](#jeito-2-rodar-no-seu-computador)
@@ -28,7 +44,8 @@ dados demográficos e de saúde. A condição periodontal segue os critérios de
 
 | Arquivo / pasta | Para que serve |
 |---|---|
-| `projeto_2_colab.ipynb` | **O notebook com toda a análise.** É aqui que se trabalha. |
+| `periodontite_v3_conjunta.ipynb` | **A análise principal (versão conjunta).** É aqui que se trabalha. |
+| `periodontite_v2_renato.ipynb` | A versão v2 do Renato, mantida para referência e comparação. |
 | `baixar_dados.py` | Baixa os dados do site do CDC para a pasta `datasets/`. O notebook chama ele sozinho. |
 | `microbioma.py` | A transformação CLR (mesma da aula de metagenômica), usada pelo notebook e pelo modelo final. |
 | `resultados.py` | Funções para salvar o modelo final na pasta `resultados/`. |
@@ -46,9 +63,9 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 ## Jeito 1: rodar no Google Colab (sem instalar nada)
 
 1. **Abra o notebook no Colab** pelo link direto (precisa estar logado numa conta Google):
-   <https://colab.research.google.com/github/dpontejs/periodontite-microbioma-ml/blob/main/projeto_2_colab.ipynb>
+   <https://colab.research.google.com/github/dpontejs/periodontite-microbioma-ml/blob/main/periodontite_v3_conjunta.ipynb>
 2. **Salve uma cópia sua** (menu **Arquivo → Salvar uma cópia no Drive**). A cópia abre numa
-   **aba nova**, com o nome "Cópia de projeto_2_colab.ipynb": feche a aba antiga e continue na
+   **aba nova**, com o nome "Cópia de periodontite_v3_conjunta.ipynb": feche a aba antiga e continue na
    nova. Assim suas alterações ficam guardadas no seu Google Drive.
 3. **Confira o endereço.** Na primeira célula de código (seção **"0. Preparação do ambiente"**),
    a linha `URL_REPOSITORIO = "..."` já vem com o endereço do repositório. Não precisa mudar nada.
@@ -64,11 +81,12 @@ A pasta `datasets/` **não** fica no repositório: ela é recriada baixando os d
 6. Depois é só rodar as outras células em ordem. O menu **Ambiente de execução → Executar tudo**
    também funciona.
 
-> **Tempo de execução.** O notebook inteiro leva cerca de 15 a 30 minutos no Colab. A parte mais
-> lenta seria a busca de hiperparâmetros (seção 8), mas ela vem desligada: a opção
-> `REFAZER_BUSCA = False` reaproveita os hiperparâmetros já encontrados, guardados em
-> `resultados/hiperparametros_por_semente.csv`, e produz exatamente os mesmos resultados. Só mude
-> para `True` se alterar a análise; aí a busca completa leva mais de 1 hora no Colab.
+> **Tempo de execução.** O notebook inteiro leva cerca de 30 a 60 minutos no Colab gratuito. A
+> parte mais demorada é a seção 9 (ajuste de hiperparâmetros nas 10 divisões treino/teste). Deixe
+> a aba do Colab aberta enquanto roda.
+
+> **Para abrir a v2 do Renato** no Colab, use o mesmo caminho com o nome do outro notebook:
+> <https://colab.research.google.com/github/dpontejs/periodontite-microbioma-ml/blob/main/periodontite_v2_renato.ipynb>
 
 > Se você fechar o Colab e voltar outro dia, a máquina dele é nova: abra a sua cópia no Drive e
 > repita a partir do passo 4.
@@ -168,7 +186,7 @@ Os arquivos vão para `datasets/`. Pode rodar de novo quando quiser, porque arqu
 uv run jupyter lab
 ```
 
-Abre uma aba no navegador. Clique em `projeto_2_colab.ipynb` e rode as células em ordem.
+Abre uma aba no navegador. Clique em `periodontite_v3_conjunta.ipynb` e rode as células em ordem.
 
 Nos outros dias, para voltar a trabalhar: abra o terminal, entre na pasta do projeto usando o
 caminho completo (no Windows, `cd C:\projetos\periodontite-microbioma-ml` se seguiu o exemplo
@@ -184,14 +202,16 @@ clique com o botão direito na pasta `periodontite-microbioma-ml` e escolha **Ab
 
 A demonstração é uma página com três abas:
 
-- **Predição:** escolhe-se um participante do conjunto de teste e o modelo mostra a probabilidade
-  de periodontite, o diagnóstico real e os gêneros bacterianos mais abundantes daquela pessoa.
+- **Predição:** escolhe-se um participante do conjunto de teste e aparecem duas probabilidades de
+  periodontite, a do modelo principal (Modelo B, microbioma + covariáveis) e a do modelo só com o
+  microbioma (Modelo A), além do diagnóstico real e dos gêneros bacterianos mais abundantes
+  daquela pessoa.
 - **Desempenho:** métricas e gráficos do modelo.
 - **Sobre:** a pergunta, os dados e como usar a página.
 
 O app só lê a pasta `resultados/`, que já vem no repositório: dá para abrir a demonstração logo
 depois de baixar o projeto, sem rodar o notebook. Quando o notebook é executado até o fim, a
-seção **"9.2 Salvar os resultados para a demonstração"** grava essa pasta de novo; se a análise
+seção **"12.1 Salvar os resultados para a demonstração"** grava essa pasta de novo; se a análise
 mudou, faça commit da pasta `resultados/` junto com o notebook.
 
 Para abrir a demonstração no seu computador:
@@ -208,7 +228,7 @@ Para abrir a demonstração **no Colab**:
 
 1. rode o notebook até o fim (ou pelo menos a célula 0, já que a pasta `resultados/` vem pronta
    no repositório);
-2. na seção **"9.3 Abrir a demonstração"**, troque `ABRIR_DEMO = False` por `ABRIR_DEMO = True`
+2. na seção **"12.2 Abrir a demonstração"**, troque `ABRIR_DEMO = False` por `ABRIR_DEMO = True`
    e rode a célula;
 3. a demonstração aparece dentro do próprio notebook e, logo acima dela, um link público
    terminado em `.gradio.live`. Esse link abre a demonstração em qualquer navegador e funciona
@@ -225,7 +245,7 @@ Para parar, clique no botão ■ da célula ou encerre a sessão do Colab.
 
 ```bash
 git status                        # o que mudou desde o último commit
-git add projeto_2_colab.ipynb     # marca o arquivo para o próximo commit
+git add periodontite_v3_conjunta.ipynb   # marca o arquivo para o próximo commit
 git commit -m "feat: descreve o que foi feito"
 git push                          # envia para o repositório online
 git pull                          # traz o que os outros enviaram
@@ -258,7 +278,7 @@ atualiza o `requirements.txt` usado pelo Colab. Faça commit dos três arquivos.
 | `Preencha URL_REPOSITORIO...` no Colab | O endereço do repositório foi apagado da primeira célula de código. Restaure a linha: `URL_REPOSITORIO = "https://github.com/dpontejs/periodontite-microbioma-ml.git"`. |
 | `Não foi possível baixar ...` | Sem internet ou site do CDC fora do ar. Espere um pouco e rode de novo. Só os arquivos que faltam são baixados. |
 | `... não confere com o esperado` | O arquivo no site do CDC mudou ou veio corrompido. Rode de novo. Se persistir, avise no grupo. |
-| A página do app diz "Resultados ainda não disponíveis" | A pasta `resultados/` sumiu ou está incompleta. Recupere a versão do repositório com `git checkout resultados/`, ou rode o notebook até a seção "9.2 Salvar os resultados para a demonstração". |
+| A página do app diz "Resultados ainda não disponíveis" | A pasta `resultados/` sumiu ou está incompleta. Recupere a versão do repositório com `git checkout resultados/`, ou rode o notebook até a seção "12.1 Salvar os resultados para a demonstração". |
 | `uv: command not found` | Feche e abra o terminal depois de instalar o uv. Se continuar, refaça o Passo 1. |
 | No Windows: `uv : O termo 'uv' não é reconhecido...` (ou `git` não reconhecido) | Mesmo caso acima: feche e abra o PowerShell depois de instalar. Se continuar, reinicie o computador, que atualiza a lista de programas instalados. |
 | No Windows: aviso sobre *política de execução* ao instalar o uv | Use exatamente o comando do Passo 1, que já inclui `-ExecutionPolicy ByPass`. |
@@ -295,7 +315,7 @@ uv run pytest
 ```
 
 **Deve aparecer:** uma linha de pontos (cada ponto é um teste que passou) e, no final, algo como
-`29 passed`. O número pode crescer conforme novos testes forem adicionados. O importante é
+`38 passed`. O número pode crescer conforme novos testes forem adicionados. O importante é
 **não aparecer `failed` nem `error`**.
 
 **Se aparecer `failed`:** a saída mostra o nome do teste e o motivo. Normalmente é algo que foi
@@ -325,17 +345,16 @@ arquivos conferem com a assinatura (SHA-256) dos arquivos originais do CDC.
 
 ### Etapa 4: o notebook roda do começo ao fim?
 
-Abra com `uv run jupyter lab`, clique em `projeto_2_colab.ipynb` e use o menu
+Abra com `uv run jupyter lab`, clique em `periodontite_v3_conjunta.ipynb` e use o menu
 **Run → Run All Cells**. Ou rode tudo direto no terminal, sem abrir o navegador:
 
 ```bash
-uv run jupyter nbconvert --to notebook --execute --inplace projeto_2_colab.ipynb
+uv run jupyter nbconvert --to notebook --execute --inplace periodontite_v3_conjunta.ipynb
 ```
 
 Esse comando executa todas as células e salva os resultados dentro do próprio notebook. Leva
-uns 10 a 20 minutos, dependendo do computador (a parte mais demorada é o treino dos modelos nas 10
-divisões treino/teste). Com `REFAZER_BUSCA = True` na seção 8, some mais uns 12 minutos num
-computador com muitos núcleos, ou bem mais num notebook simples.
+uns 10 a 30 minutos, dependendo do computador (a parte mais demorada é o ajuste de
+hiperparâmetros da seção 9, nas 10 divisões treino/teste).
 
 **Deve aparecer:** nenhuma célula com erro (no Jupyter, erros aparecem em vermelho; no comando
 acima, o terminal mostraria `CellExecutionError`). Confira também alguns números-chave, que
@@ -344,17 +363,18 @@ as sementes aleatórias são fixas:
 
 | Onde | O que conferir | Valor esperado |
 |---|---|---|
-| Seção 4.3 | participantes sem / com periodontite | 2985 / 2892 |
-| Seção 5.1 | dimensões da matriz CLR | (5877, 1349) |
-| Seção 5.2 | AUC média do XGBoost | 0,777 ± 0,011 |
-| Seção 5.2 | AUC do DummyClassifier | 0,500 |
-| Seção 6 | modelo com maior AUC média | XGBoost |
-| Seção 7.1 | gêneros após remover constantes / correlacionados | 1015 / 711 |
-| Seção 8 | AUC média do XGBoost ajustado | 0,795 ± 0,007 |
-| Seção 8 | sementes em que o ajuste melhorou a AUC | 10 de 10 |
-| Seção 9.1 | AUC do modelo final na semente 42 | 0,811 |
+| Seção 6.1 | participantes sem / com periodontite | 2984 / 2892 |
+| Seção 6.3 | gêneros mantidos pelo filtro de prevalência em cada treino | 106 a 112 |
+| Seção 6.3 | AUC do Modelo A (XGBoost padrão) | 0,772 ± 0,010 |
+| Seção 6.3 | AUC do DummyClassifier | 0,500 |
+| Seção 7 | classificador padrão com maior AUC (Modelo A) | Regressão logística (0,777) |
+| Seção 10 | AUC do Modelo A ajustado | 0,789 ± 0,012 |
+| Seção 10 | AUC do Modelo B ajustado | 0,834 ± 0,010 |
+| Seção 10 | AUC do Modelo C (só covariáveis) | 0,697 ± 0,009 |
+| Seção 10 | o que o microbioma acrescenta (B − C) | +0,137, positivo em 10 de 10 sementes |
+| Seção 10.1 | AUC do Modelo B na semente 42 | 0,838 |
 
-> Esses valores valem para a versão atual do notebook. Se alguém mudar a análise (filtros,
+> Esses valores valem para a versão atual de `periodontite_v3_conjunta.ipynb`. Se alguém mudar a análise (filtros,
 > modelos, parâmetros), os números mudam junto; atualize esta tabela no mesmo commit.
 
 **Se der erro:** leia a última linha da mensagem em vermelho. `ModuleNotFoundError` quase
@@ -371,8 +391,8 @@ uv run python app.py
 no navegador.
 
 Confira as três abas:
-  - **Predição:** ao escolher outro participante na lista, a probabilidade, a condição real e a
-    tabela de gêneros mudam;
+  - **Predição:** ao escolher outro participante na lista, as duas probabilidades, a condição real
+    e a tabela de gêneros mudam;
   - **Desempenho:** aparece a tabela de métricas e as figuras salvas;
   - **Sobre:** aparece o texto explicando o projeto.
 
@@ -398,6 +418,6 @@ cd periodontite-microbioma-ml
 uv sync
 uv run pytest
 uv run python baixar_dados.py
-uv run jupyter nbconvert --to notebook --execute --inplace projeto_2_colab.ipynb
+uv run jupyter nbconvert --to notebook --execute --inplace periodontite_v3_conjunta.ipynb
 uv run python app.py
 ```
