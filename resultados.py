@@ -7,7 +7,9 @@ demonstração (``app.py``) lê com :func:`carregar_resultados`. Conteúdo da pa
 - ``teste.csv.gz``: conjunto de teste (SEQN, atributos e coluna ``rotulo``);
 - ``metricas.json``: métricas de desempenho no teste;
 - ``rotulos_atributos.json``: código do atributo -> nome legível (ex.: gênero);
-- ``figuras/*.png``: figuras para a aba "Desempenho".
+- ``figuras/*.png``: figuras para a aba "Desempenho";
+- ``modelo_taxons.joblib`` (opcional): um segundo modelo, só com o microbioma, cuja
+  probabilidade o app mostra ao lado da do modelo principal.
 """
 
 from __future__ import annotations
@@ -29,6 +31,7 @@ class Resultados:
     metricas: dict
     rotulos_atributos: dict
     figuras: list[Path]
+    modelo_taxons: object | None = None  # modelo só com o microbioma (opcional)
 
 
 def salvar_resultados(
@@ -39,6 +42,7 @@ def salvar_resultados(
     figuras: dict,
     rotulos_atributos: dict[str, str],
     pasta: Path = Path("resultados"),
+    modelo_taxons=None,
 ) -> None:
     """Grava tudo o que o app precisa. ``X_teste`` deve ter SEQN como índice."""
     rotulos = pd.Series(y_teste).astype(int)
@@ -49,6 +53,8 @@ def salvar_resultados(
     (pasta / "figuras").mkdir(parents=True, exist_ok=True)
 
     joblib.dump(modelo, pasta / "modelo.joblib")
+    if modelo_taxons is not None:
+        joblib.dump(modelo_taxons, pasta / "modelo_taxons.joblib")
     teste = X_teste.copy()
     teste.index.name = "SEQN"
     teste["rotulo"] = rotulos.to_numpy()
@@ -76,4 +82,8 @@ def carregar_resultados(pasta: Path = Path("resultados")) -> Resultados:
         metricas=json.loads((pasta / "metricas.json").read_text(encoding="utf-8")),
         rotulos_atributos=json.loads((pasta / "rotulos_atributos.json").read_text(encoding="utf-8")),
         figuras=sorted((pasta / "figuras").glob("*.png")),
+        modelo_taxons=(
+            joblib.load(pasta / "modelo_taxons.joblib")
+            if (pasta / "modelo_taxons.joblib").exists() else None
+        ),
     )

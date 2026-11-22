@@ -1,7 +1,7 @@
 import gradio as gr
 import pytest
 
-from app import criar_app, criar_app_ou_aviso, prever, tabela_metricas
+from app import criar_app, criar_app_ou_aviso, prever, prever_taxons, tabela_metricas
 from resultados import CLASSES, carregar_resultados
 
 
@@ -65,3 +65,21 @@ def test_app_sem_resultados(tmp_path, monkeypatch):
     monkeypatch.setenv("RESULTADOS_DIR", str(tmp_path))
 
     assert isinstance(criar_app_ou_aviso(), gr.Blocks)
+
+
+def test_prever_taxons(resultados_com_taxons):
+    res = carregar_resultados(resultados_com_taxons)
+    seqn = int(res.teste.index[0])
+
+    probabilidades = prever_taxons(res, seqn)
+
+    assert set(probabilidades) == set(CLASSES)
+    assert sum(probabilidades.values()) == pytest.approx(1.0)
+
+
+def test_prever_taxons_sem_modelo(res):
+    assert prever_taxons(res, int(res.teste.index[0])) is None
+
+
+def test_app_com_modelo_taxons(resultados_com_taxons):
+    assert isinstance(criar_app(carregar_resultados(resultados_com_taxons)), gr.Blocks)

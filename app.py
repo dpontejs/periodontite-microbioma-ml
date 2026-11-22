@@ -45,22 +45,29 @@ Diego Medeiros e Renato Carvalho.*
 """
 
 
-def _atributos_do_modelo(res: Resultados) -> list[str]:
-    nomes = getattr(res.modelo, "feature_names_in_", None)
+def _atributos_do_modelo(modelo, res: Resultados) -> list[str]:
+    nomes = getattr(modelo, "feature_names_in_", None)
     if nomes is not None:
         return list(nomes)
     return [c for c in res.teste.columns if c != "rotulo"]
 
 
-def prever(res: Resultados, seqn: int) -> tuple[dict[str, float], str, pd.DataFrame]:
-    """Probabilidades por classe, rótulo real e os 10 atributos mais abundantes."""
+def _probabilidades(modelo, res: Resultados, linha: pd.DataFrame) -> dict[str, float]:
+    probabilidades = modelo.predict_proba(linha[_atributos_do_modelo(modelo, res)])[0]
+    return {CLASSES[int(c)]: float(p) for c, p in zip(modelo.classes_, probabilidades)}
+
+
+def _linha(res: Resultados, seqn: int) -> pd.DataFrame:
     seqn = int(seqn)
     if seqn not in res.teste.index:
         raise gr.Error(f"O participante {seqn} não está no conjunto de teste.")
+    return res.teste.loc[[seqn]]
 
-    linha = res.teste.loc[[seqn]]
-    probabilidades = res.modelo.predict_proba(linha[_atributos_do_modelo(res)])[0]
-    por_classe = {CLASSES[int(c)]: float(p) for c, p in zip(res.modelo.classes_, probabilidades)}
+
+def prever(res: Resultados, seqn: int) -> tuple[dict[str, float], str, pd.DataFrame]:
+    """Probabilidades por classe, rótulo real e os 10 atributos mais abundantes."""
+    linha = _linha(res, seqn)
+    por_classe = _probabilidades(res.modelo, res, linha)
 
     rotulo_real = CLASSES[int(linha["rotulo"].iloc[0])]
 
@@ -73,6 +80,13 @@ def prever(res: Resultados, seqn: int) -> tuple[dict[str, float], str, pd.DataFr
         }
     )
     return por_classe, rotulo_real, tabela
+
+
+def prever_taxons(res: Resultados, seqn: int) -> dict[str, float] | None:
+    """Probabilidades do modelo só com o microbioma, se ele existir."""
+    if res.modelo_taxons is None:
+        return None
+    return _probabilidades(res.modelo_taxons, res, _linha(res, seqn))
 
 
 def tabela_metricas(res: Resultados) -> pd.DataFrame:
@@ -88,15 +102,23 @@ def criar_app(res: Resultados) -> gr.Blocks:
             escolha = gr.Dropdown(
                 participantes, value=participantes[0], label="Participante (SEQN)"
             )
+            tem_taxons = res.modelo_taxons is not None
             with gr.Row():
-                probabilidades = gr.Label(label="Probabilidade estimada pelo modelo")
-                rotulo_real = gr.Textbox(label="Condição real (exame periodontal)")
+                probabilidades = gr.Label(
+                    label="Probabilidade — microbioma + dados do participante (modelo principal)"
+                    if tem_taxons else "Probabilidade estimada pelo modelo"
+                )
+                probabilidades_taxons = gr.Label(
+                    label="Probabilidade — só microbioma", visible=tem_taxons
+                )
+            rotulo_real = gr.Textbox(label="Condição real (exame periodontal)")
             tabela = gr.Dataframe(label="Gêneros mais abundantes nesta amostra")
 
             def _atualizar(seqn):
-                return prever(res, seqn)
+                por_classe, real, generos = prever(res, seqn)
+                return por_classe, prever_taxons(res, seqn), real, generos
 
-            saidas = [probabilidades, rotulo_real, tabela]
+            saidas = [probabilidades, probabilidades_taxons, rotulo_real, tabela]
             escolha.change(_atualizar, escolha, saidas)
             demo.load(_atualizar, escolha, saidas)
         with gr.Tab("Desempenho"):

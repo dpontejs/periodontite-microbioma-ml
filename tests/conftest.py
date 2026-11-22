@@ -38,3 +38,22 @@ def resultados_exemplo(tmp_path):
     )
     plt.close(fig)
     return pasta
+
+
+@pytest.fixture
+def resultados_com_taxons(tmp_path):
+    """Como resultados_exemplo, mas com um segundo modelo que usa só parte das colunas."""
+    rng = np.random.default_rng(1)
+    abundancias = rng.dirichlet(np.ones(len(ATRIBUTOS)), size=40)
+    X = pd.DataFrame(abundancias, columns=ATRIBUTOS, index=pd.Index(range(2000, 2040), name="SEQN"))
+    y = pd.Series(np.tile([0, 1], 20), index=X.index, name="rotulo")
+    modelo = LogisticRegression().fit(X.iloc[:30], y.iloc[:30])
+    modelo_taxons = LogisticRegression().fit(X.iloc[:30, :3], y.iloc[:30])
+
+    pasta = tmp_path / "resultados_ab"
+    salvar_resultados(
+        modelo, X.iloc[30:], y.iloc[30:], METRICAS_EXEMPLO, {},
+        {c: f"Gênero {i}" for i, c in enumerate(ATRIBUTOS, 1)},
+        pasta=pasta, modelo_taxons=modelo_taxons,
+    )
+    return pasta

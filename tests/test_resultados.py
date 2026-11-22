@@ -60,3 +60,15 @@ assert res.metricas == {{"Acurácia — média": 0.7}}
         cwd=raiz, capture_output=True, text=True, encoding="utf-8",
     )
     assert proc.returncode == 0, proc.stderr[-800:]
+
+
+def test_salva_e_carrega_modelo_taxons(resultados_com_taxons):
+    res = carregar_resultados(resultados_com_taxons)
+
+    assert res.modelo_taxons is not None
+    colunas = list(res.modelo_taxons.feature_names_in_)
+    assert res.modelo_taxons.predict_proba(res.teste[colunas]).shape == (10, 2)
+
+
+def test_resultados_sem_modelo_taxons(resultados_exemplo):
+    assert carregar_resultados(resultados_exemplo).modelo_taxons is None
