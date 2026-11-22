@@ -99,3 +99,12 @@ def test_funciona_com_numpy_e_no_pipeline_salvo(tmp_path):
 
     assert recarregado.predict_proba(X) == pytest.approx(modelo.predict_proba(X))
     assert RemoverCorrelacionados(0.8).fit(X.to_numpy()).transform(X.to_numpy()).shape == (50, 2)
+
+
+def test_funciona_com_colunas_sem_nome_em_texto():
+    X = _dados_com_copia()
+    X.columns = range(X.shape[1])  # colunas 0, 1, 2, 3
+
+    resultado = RemoverCorrelacionados(0.8).fit(X).transform(X)
+
+    assert list(resultado.columns) == [0, 3]

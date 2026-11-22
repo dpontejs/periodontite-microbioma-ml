@@ -51,7 +51,7 @@ class RemoverCorrelacionados(TransformerMixin, BaseEstimator):
         check_is_fitted(self, "manter_")
         X_validado = validate_data(self, X, reset=False)
         if isinstance(X, pd.DataFrame):
-            return X.loc[:, self.get_feature_names_out()]
+            return X.iloc[:, self.manter_]
         return X_validado[:, self.manter_]
 
     def get_feature_names_out(self, input_features=None):
