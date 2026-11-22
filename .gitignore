@@ -13,3 +13,4 @@ __pycache__/
 enunciado/
 apresentacoes/
 .ambiente_instalado
+.gradio/
